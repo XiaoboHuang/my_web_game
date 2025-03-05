@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>知识大PK</title>
+	<style>
+		/* 保持原有CSS样式不变 */
+		body {
+			margin: 0;
+			padding: 20px;
+			background-color: #ffe6e6;
+			font-family: Arial, sans-serif;
+		}
+
+		#gameContainer {
+			display: flex;
+			justify-content: space-around;
+			height: 70vh;
+		}
+
+		.column {
+			flex: 1;
+			position: relative;
+			border-left: 3px dashed #666;
+		}
+
+		.score {
+			text-align: center;
+			font-size: 24px;
+			color: #333;
+			margin-bottom: 20px;
+		}
+
+		.dropArea {
+			height: 80%;
+			position: relative;
+			overflow: hidden;
+		}
+
+		.sentence {
+			position: absolute;
+			width: 120px;
+			height: 120px;
+			font-size: 18px;
+			background: #fff;
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			text-align: center;
+			padding: 10px;
+			cursor: pointer;
+			transition: all 0.3s;
+		}
+
+		@keyframes blink {
+			0% { background: #ff0000; }
+			50% { background: #fff; }
+			100% { background: #ff0000; }
+		}
+
+		.wrong-click {
+			animation: blink 0.5s 3;
+		}
+
+		#controls {
+			text-align: center;
+			margin: 20px;
+		}
+
+		button {
+			padding: 10px 20px;
+			font-size: 16px;
+			background: #4CAF50;
+			color: white;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+		}
+
+		#nameBox {
+			text-align: center;
+			margin-top: 30px;
+		}
+
+		.nameSpot {
+			display: inline-block;
+			margin: 0 20px;
+			font-size: 24px;
+			min-width: 100px;
+		}
+
+		#result {
+			display: none;
+			position: fixed;
+			top: 40%;  /* 调整位置 */
+			left: 50%;
+			transform: translate(-50%, -50%);
+			background: white;
+			padding: 30px;	/* 增加内边距 */
+			border-radius: 15px;
+			box-shadow: 0 0 20px rgba(0,0,0,0.4);
+			width: 80%;	 /* 增加宽度 */
+			max-width: 800px;
+			z-index: 1000;
+		}
+
+		#result h2 {
+			font-size: 2em;	 /* 放大标题 */
+			margin: 0 0 20px 0;
+			text-align: center;
+		}
+
+		.sentence-list {
+			display: flex;
+			gap: 30px;	/* 增加间距 */
+			margin-top: 30px;
+			justify-content: center;
+		}
+
+		.correct-box, .wrong-box {
+			padding: 10px;
+			border-radius: 10px;
+			width: 500px;  /* 增加宽度 */
+			min-height: 300px;
+			font-size: 1em;	 /* 放大文字 */
+		}
+
+		#finalScores {
+			font-size: 1.8em;  /* 放大得分文字 */
+			text-align: center;
+			margin: 15px 0;
+		}
+
+		.correct-box { background: #dfffdf; }
+		.wrong-box { background: #ffdfdf; }
+	</style>
+</head>
+<body>
+	<audio id="bgm" loop>
+		<source src="bgm.mp3" type="audio/mpeg">
+	</audio>
+	<audio id="correctSound"><source src="pop.mp3" type="audio/mpeg"></audio>
+	<audio id="wrongSound"><source src="alert.mp3" type="audio/mpeg"></audio>
+
+	<div id="controls">
+		<button onclick="startGame()">开始游戏</button>
+	</div>
+
+	<div id="gameContainer">
+		<div class="column">
+			<div class="score" id="score1">0</div>
+			<div class="dropArea" id="area1"></div>
+		</div>
+		<div class="column">
+			<div class="score" id="score2">0</div>
+			<div class="dropArea" id="area2"></div>
+		</div>
+		<div class="column">
+			<div class="score" id="score3">0</div>
+			<div class="dropArea" id="area3"></div>
+		</div>
+	</div>
+
+	<div id="nameBox">
+		<button onclick="toggleRoll()">开始点名</button>
+		<div id="nameDisplay">
+			<span class="nameSpot"></span>
+			<span class="nameSpot"></span>
+			<span class="nameSpot"></span>
+		</div>
+	</div>
+
+	<div id="result">
+		<h2>游戏结束！</h2>
+		<div id="finalScores"></div>
+		<div class="sentence-list">
+			<div class="correct-box"></div>
+			<div class="wrong-box"></div>
+		</div>
+	</div>
+
+<script>
+// 游戏配置
+const config = {
+	dropSpeed: 1.2,
+	gameDuration: 60000
+};
+
+// 句子库
+const sentences = {
+	correct: [
+
+		'蒸腾作用主要是通过叶片进行的',
+		'叶片由表皮、叶肉和叶脉构成',
+		'气孔一般位于下表皮',
+		'保卫细胞中含有少量的叶绿体',
+		'植物进行光合作用的部位主要是叶肉',
+		'植物移栽时去掉部分叶片是为了减少蒸腾作用',
+		'蒸腾作用能够促进水和无机盐的运输',
+		
+		'植物在光下制造的有机物是淀粉',
+		'酒精脱色后叶片变为黄白色',
+		'酒精脱色时必须使用水浴加热的方法',
+		'用碘液检测淀粉是因为淀粉遇碘变蓝'
+	],
+	wrong: [
+
+		'叶片的表皮能进行光合作用',
+		'气孔一般位于上表皮',
+		'叶的表皮属于上皮组织',
+		'植物移栽时可以去掉所有叶片',
+		'植物根吸收的水全部被细胞所利用',
+		'保卫细胞不能进行光合作用',
+		'根吸收的水分通过筛管运输',
+
+		'使用酒精脱色是因为叶绿体溶于酒精',
+		'酒精脱色时可以直接用酒精灯加热烧杯中的酒精',
+		'滴加碘液后，遮光部分变为蓝色'
+	]
+};
+
+// 学生名单
+const students = ['曾钰珊','陈超柯','陈芷乔','邓淇鑫','付皓辰',
+				'郭明翰','韩涵','韩雨辰','何耀宇','侯雨萱','黄驿博',
+				'兰锦程','李晟睿','李伽鹿','李明翼','李烨馨','李姿默',
+				'林美杉','刘炳辰','刘思成','刘泽宇','刘喆渊','罗皓腾',
+				'史恩铭','唐煊懿','唐钰尧','涂艺嘉','万怡','王馨平',
+				'王一冰','王钲昊','吴艾琳','吴悦晨','徐俊熙','徐铭浩',
+				'杨华荧','詹竣翔','张宇轩','赵益瑞','郑博洋'];
+
+let gameRunning = false;
+let gameTimer;
+let dropIntervals = [];
+let usedSentences = [];
+let scores = [0, 0, 0];
+let allShownSentences = new Map();
+
+// 游戏逻辑
+function startGame() {
+	if (gameRunning) return;
+
+
+	// 新增：重置结果展示
+	document.getElementById('result').style.display = 'none';
+	document.querySelector('.correct-box').innerHTML = '<h3>正确句子</h3>';
+	document.querySelector('.wrong-box').innerHTML = '<h3>错误句子</h3>';
+	gameRunning = true;
+	document.getElementById('bgm').play();
+	scores = [0, 0, 0];
+	usedSentences = [
+		{ correct: new Set(), wrong: new Set() },
+		{ correct: new Set(), wrong: new Set() },
+		{ correct: new Set(), wrong: new Set() }
+	];
+	allShownSentences = new Map();
+	dropIntervals.forEach(clearInterval);
+	dropIntervals = [];
+	
+	// 重置分数显示
+	['score1', 'score2', 'score3'].forEach(id => {
+		document.getElementById(id).textContent = '0';
+	});
+
+	// 初始化三个区域
+	['area1', 'area2', 'area3'].forEach((areaId, index) => {
+		const area = document.getElementById(areaId);
+		area.innerHTML = '';
+		startDropping(area, index);
+	});
+
+	gameTimer = setTimeout(endGame, config.gameDuration);
+}
+
+function startDropping(area, areaIndex) {
+	const interval = setInterval(() => {
+		if (!gameRunning) return;
+		
+		const availableTypes = [];
+		if (usedSentences[areaIndex].correct.size < sentences.correct.length) {
+			availableTypes.push('correct');
+		}
+		if (usedSentences[areaIndex].wrong.size < sentences.wrong.length) {
+			availableTypes.push('wrong');
+		}
+
+		if (availableTypes.length === 0) {
+			checkAllSentencesUsed();
+			return;
+		}
+
+		const type = availableTypes[Math.floor(Math.random() * availableTypes.length)];
+		const available = sentences[type].filter(s => !usedSentences[areaIndex][type].has(s));
+		
+		if (available.length > 0) {
+			const sentence = available[Math.floor(Math.random() * available.length)];
+			usedSentences[areaIndex][type].add(sentence);
+			allShownSentences.set(sentence, type);
+			createSentenceElement(sentence, type, area, areaIndex);
+		}
+
+		checkAllSentencesUsed();
+	}, 2000);
+
+	dropIntervals.push(interval);
+}
+
+function createSentenceElement(text, type, area, areaIndex) {
+	const elem = document.createElement('div');
+	elem.className = 'sentence';
+	elem.style.left = Math.random() * 80 + '%';
+	elem.textContent = text;
+	elem.dataset.type = type;
+	elem.dataset.area = areaIndex;
+	
+	elem.onclick = function() {
+		if (!gameRunning) return;
+		
+		if (this.dataset.type === 'correct') {
+			scores[this.dataset.area]++;
+			document.getElementById(`score${parseInt(this.dataset.area)+1}`).textContent = scores[this.dataset.area];
+			this.style.transform = 'scale(2)';
+			this.style.opacity = '0';
+			document.getElementById('correctSound').play();
+			setTimeout(() => this.remove(), 300);
+		} else {
+			scores[this.dataset.area]--;
+			document.getElementById(`score${parseInt(this.dataset.area)+1}`).textContent = scores[this.dataset.area];
+			this.classList.add('wrong-click');
+			document.getElementById('wrongSound').play();
+		}
+	};
+
+	area.appendChild(elem);
+	animateDrop(elem, area.offsetHeight);
+}
+
+function animateDrop(elem, maxHeight) {
+	let pos = -100;
+	const animate = () => {
+		if (pos > maxHeight || !gameRunning) {
+			elem.remove();
+			return;
+		}
+		pos += config.dropSpeed;
+		elem.style.top = pos + 'px';
+		requestAnimationFrame(animate);
+	};
+	requestAnimationFrame(animate);
+}
+
+function checkAllSentencesUsed() {
+	const allUsed = usedSentences.every(area => 
+		area.correct.size === sentences.correct.length &&
+		area.wrong.size === sentences.wrong.length
+	);
+	
+	if (allUsed) {
+		clearTimeout(gameTimer);
+		setTimeout(endGame, 5000);
+	}
+}
+
+function endGame() {
+	gameRunning = false;
+	document.getElementById('bgm').pause();
+	document.getElementById('result').style.display = 'block';
+	
+	document.getElementById('finalScores').innerHTML = `
+		<div>得分：${scores[0]} | ${scores[1]} | ${scores[2]}</div>
+	`;
+	
+	const correctBox = document.querySelector('.correct-box');
+	const wrongBox = document.querySelector('.wrong-box');
+	correctBox.innerHTML = '<h3>正确句子</h3>';
+	wrongBox.innerHTML = '<h3>错误句子</h3>';
+	
+	allShownSentences.forEach((type, text) => {
+		const div = document.createElement('div');
+		div.textContent = text;
+		type === 'correct' ? correctBox.appendChild(div) : wrongBox.appendChild(div);
+	});
+}
+
+// 点名功能
+let rolling = false;
+let rollInterval;
+
+function toggleRoll() {
+	rolling = !rolling;
+	const btn = document.querySelector('#nameBox button');
+	btn.textContent = rolling ? '停止点名' : '开始点名';
+	
+	if (rolling) {
+		rollInterval = setInterval(() => {
+			document.querySelectorAll('.nameSpot').forEach(spot => {
+				spot.textContent = students[Math.floor(Math.random() * students.length)];
+			});
+		}, 50);
+	} else {
+		clearInterval(rollInterval);
+		const selected = [];
+		while (selected.length < 3) {
+			const name = students[Math.floor(Math.random() * students.length)];
+			if (!selected.includes(name)) selected.push(name);
+		}
+		document.querySelectorAll('.nameSpot').forEach((spot, i) => {
+			spot.textContent = selected[i];
+			spot.style.fontSize = '32px';
+			spot.style.color = '#ff6600';
+		});
+	}
+}
+</script>
+</body>
+</html>
