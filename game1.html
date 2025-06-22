@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>生物知识配对游戏</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #ffe6e6;
+            font-family: 'Comic Sans MS', cursive;
+        }
+
+        #rollcall-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        #rollcall-btn {
+            background-color: #FF4081;
+            font-size: 20px;
+            padding: 12px 24px;
+            margin-right: 20px;
+        }
+
+        #name-display {
+            height: 60px;
+            margin: 15px auto;
+            font-size: 24px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            max-width: 80%;
+        }
+
+        .name-item {
+            padding: 5px 10px;
+            transition: all 0.3s;
+        }
+
+        .highlight {
+            color: #D32F2F;
+            font-size: 32px;
+            font-weight: bold;
+            animation: pop 0.5s;
+        }
+
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        #container {
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .game-area {
+            width: 45%;
+            height: 80vh;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .divider {
+            border-left: 4px dashed #666;
+            height: 80vh;
+        }
+
+        .area-column {
+            padding: 10px 0;
+            position: relative;
+        }
+
+        .left-column {
+            width: 35%;
+        }
+
+        .right-part {
+            width: 25%;
+        }
+
+        .left-box {
+            background: #fff;
+            border: 2px solid #4CAF50;
+            font-size: 24px;
+            border-radius: 10px;
+            padding: 10px;
+            margin: 15px 0 15px 20px;
+            cursor: move;
+            position: relative;
+            user-select: none;
+            min-height: 60px;
+            line-height: 1.5;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s;
+            width: calc(100% - 20px);
+            white-space: normal;
+            word-wrap: break-word;
+        }
+
+        .left-box.connected {
+            pointer-events: none;
+            opacity: 0.6;
+            visibility: visible;
+        }
+
+        .left-box::after {
+            content: '';
+            position: absolute;
+            right: -17px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-top: 12px solid transparent;
+            border-bottom: 12px solid transparent;
+            border-left: 17px solid #4CAF50;
+        }
+
+        .right-box {
+            background: #fff;
+            font-size: 24px;
+            border: 2px solid #2196F3;
+            border-radius: 10px;
+            padding: 10px;
+            margin: 15px 20px 15px 0;
+            position: relative;
+            min-height: 60px;
+            line-height: 1.5;
+            display: flex;
+            align-items: center;
+            width: calc(100% - 20px);
+            white-space: normal;
+            word-wrap: break-word;
+        }
+
+        .right-box::before {
+            content: '';
+            position: absolute;
+            left: -17px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-top: 12px solid transparent;
+            border-bottom: 12px solid transparent;
+            border-right: 17px solid #2196F3;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 32px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 18px;
+            margin: 10px;
+        }
+
+        #result {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 600px;          /* 原为自适应内容宽度 */
+            max-width: 90%;        /* 保持响应式 */
+            transform: translate(-50%, -50%);
+            background: white;
+            font-size: 24px;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            text-align: center;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <div id="rollcall-container">
+        <button id="rollcall-btn" onclick="toggleRollcall()">开始点名</button>
+        <button onclick="startGame()">开始游戏</button>
+        <div id="name-display"></div>
+    </div>
+    
+    <div id="container">
+        <div class="game-area" id="area1">
+            <div class="area-column left-column"></div>
+            <div class="area-column right-part"></div>
+            <button onclick="submit(1)" style="position: absolute; bottom: 0; left: 20px;">提交答案</button>
+        </div>
+        <div class="divider"></div>
+        <div class="game-area" id="area2">
+            <div class="area-column left-column"></div>
+            <div class="area-column right-part"></div>
+            <button onclick="submit(2)" style="position: absolute; bottom: 0; left: 20px;">提交答案</button>
+        </div>
+    </div>
+    <div id="result"></div>
+
+    <script>
+        // 点名功能
+        const students = ["李洁","曹春霞","刘安攀","陈名杰","王燕","钟亮"];
+
+        let isRolling = false;
+        let rollInterval = null;
+        const nameDisplay = document.getElementById('name-display');
+
+        function toggleRollcall() {
+            const btn = document.getElementById('rollcall-btn');
+            if (!isRolling) {
+                isRolling = true;
+                btn.textContent = '停止';
+                startRolling();
+            } else {
+                isRolling = false;
+                btn.textContent = '开始点名';
+                stopRolling();
+            }
+        }
+
+        function startRolling() {
+            nameDisplay.innerHTML = '';
+            for (let i = 0; i < 2; i++) {
+                const div = document.createElement('div');
+                div.className = 'name-item';
+                nameDisplay.appendChild(div);
+            }
+            
+            rollInterval = setInterval(() => {
+                const tempNames = [];
+                while(tempNames.length < 2) {
+                    const name = students[Math.floor(Math.random()*students.length)];
+                    if (!tempNames.includes(name)) tempNames.push(name);
+                }
+                Array.from(nameDisplay.children).forEach((item, index) => {
+                    item.textContent = tempNames[index];
+                });
+            }, 80);
+        }
+
+        function stopRolling() {
+            clearInterval(rollInterval);
+            const finalNames = [];
+            while(finalNames.length < 2) {
+                const name = students[Math.floor(Math.random()*students.length)];
+                if (!finalNames.includes(name)) finalNames.push(name);
+            }
+            Array.from(nameDisplay.children).forEach((item, index) => {
+                item.textContent = finalNames[index];
+                item.classList.add('highlight');
+            });
+        }
+
+        // 原有游戏逻辑
+        const sentences = [
+            "包括花药和花丝——雄蕊",
+            "由柱头、花柱和子房构成——雌蕊",
+            "光合作用的原料之一——二氧化碳",
+            "光合作用的产物——氧气",
+            "根尖生长最快的区域——伸长区",
+            "根尖吸收水和无机盐的区域——成熟区",
+            "根尖上起保护作用的是——根冠",
+            "果实由什么发育而来——子房"
+        ];
+
+        let selectedPairs = [];
+        let draggedElement = null;
+        let submissions = 0;
+        let scores = [0, 0];
+        let currentConnections = {1: {}, 2: {}};
+
+        function startGame() {
+            submissions = 0;
+            scores = [0, 0];
+            currentConnections = {1: {}, 2: {}};
+            document.getElementById('result').style.display = 'none';
+            selectedPairs = getRandomSentences(6);
+            
+            [1, 2].forEach(areaId => {
+                const area = document.getElementById(`area${areaId}`);
+                const leftColumn = area.querySelector('.left-column');
+                const rightPart = area.querySelector('.right-part');
+                
+                leftColumn.innerHTML = '';
+                rightPart.innerHTML = '';
+
+                shuffleArray(selectedPairs).forEach(pair => {
+                    const div = document.createElement('div');
+                    div.className = 'left-box';
+                    div.draggable = true;
+                    div.textContent = pair.question;
+                    div.dataset.correct = pair.answerId;
+                    div.ondragstart = dragStart;
+                    leftColumn.appendChild(div);
+                });
+
+                shuffleArray(selectedPairs).forEach(pair => {
+                    const div = document.createElement('div');
+                    div.className = 'right-box';
+                    div.dataset.answerId = pair.answerId;
+                    div.ondragover = allowDrop;
+                    div.ondrop = drop;
+                    div.textContent = pair.answer;
+                    rightPart.appendChild(div);
+                });
+            });
+        }
+
+        function getRandomSentences(n) {
+            const shuffled = shuffleArray([...sentences]);
+            return shuffled.slice(0, n).map((s, i) => ({
+                question: s.split('——')[0],
+                answer: s.split('——')[1],
+                answerId: i.toString()
+            }));
+        }
+
+        function shuffleArray(array) {
+            return array.sort(() => Math.random() - 0.5);
+        }
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function dragStart(ev) {
+            if(!ev.target.classList.contains('connected')) {
+                draggedElement = ev.target;
+            }
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            const target = ev.target.closest('.right-box');
+            if (!target || draggedElement.classList.contains('connected')) return;
+
+            const isCorrect = target.dataset.answerId === draggedElement.dataset.correct;
+            const areaId = ev.target.closest('.game-area').id.replace('area', '');
+            
+            draggedElement.classList.add(isCorrect ? 'correct' : 'wrong', 'connected');
+            target.classList.add('matched');
+            
+            const targetRect = target.getBoundingClientRect();
+            const areaRect = target.parentElement.getBoundingClientRect();
+            const leftBoxWidth = draggedElement.offsetWidth;
+            
+            const clone = draggedElement.cloneNode(true);
+            clone.style.position = 'absolute';
+            clone.style.left = `${targetRect.left - areaRect.left - leftBoxWidth - 2}px`;
+            clone.style.top = `${targetRect.top - areaRect.top}px`;
+            clone.style.width = `${leftBoxWidth}px`;
+            clone.style.margin = '0';
+            clone.draggable = false;
+            
+            clone.style.zIndex = '1';
+            target.style.zIndex = '2';
+            
+            draggedElement.style.visibility = 'hidden';
+            target.parentElement.appendChild(clone);
+            
+            currentConnections[areaId][draggedElement.dataset.correct] = isCorrect;
+            draggedElement = null;
+        }
+
+        function submit(studentId) {
+            const correctCount = Object.values(currentConnections[studentId]).filter(Boolean).length;
+            scores[studentId-1] = correctCount;
+            
+            if (++submissions === 2) showResult();
+        }
+
+        function showResult() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                <h2>游戏结果</h2>
+                <p>学生1得分：${scores[0]}</p>
+                <p>学生2得分：${scores[1]}</p>
+                <h3>正确答案：</h3>
+                ${selectedPairs.map(p => `
+                    <div class="correct-pair">${p.question} ➔ ${p.answer}</div>
+                `).join('')}
+            `;
+            resultDiv.style.display = 'block';
+        }
+
+        startGame();
+    </script>
+</body>
+</html>

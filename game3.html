@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>课堂互动小游戏</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+		}
+		
+		body {
+			background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+			min-height: 100vh;
+			padding: 20px;
+			color: #fff;
+			overflow-x: hidden;
+		}
+		
+		.container {
+			max-width: 1700px;
+			margin: 0 auto;
+			background: rgba(255, 255, 255, 0.1);
+			backdrop-filter: blur(10px);
+			border-radius: 20px;
+			box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+			overflow: hidden;
+			border: 1px solid rgba(255, 255, 255, 0.2);
+		}
+		
+		/* 顶部区域样式 */
+		.top-bar {
+			background: linear-gradient(90deg, #4A00E0, #8E2DE2);
+			padding: 5px 10px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			border-bottom: 3px solid rgba(255, 255, 255, 0.3);
+			position: relative;
+		}
+		
+		.game-title {
+			color: #fff;
+			font-size: 28px;
+			font-weight: bold;
+			text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+		
+		.game-title i {
+			font-size: 32px;
+			color: #FFD700;
+		}
+		
+		.selected-students {
+			background: rgba(255, 255, 255, 0.15);
+			color: white;
+			padding: 10px 20px;
+			border-radius: 30px;
+			font-weight: bold;
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			max-width: 400px;
+			overflow: hidden;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+			margin-left: 20px;
+		}
+		
+		.student-icon {
+			font-size: 24px;
+			color: #FFD700;
+		}
+		
+		.control-area {
+			display: flex;
+			gap: 20px;
+			align-items: center;
+		}
+		
+		.player-count {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			background: rgba(255, 255, 255, 0.15);
+			padding: 3px 8px;
+			border-radius: 10px;
+		}
+		
+		.player-count label {
+			font-size: 14px;
+			margin-bottom: 5px;
+			color: #FFD700;
+		}
+		
+		.player-count input {
+			width: 60px;
+			padding: 5px;
+			border: none;
+			border-radius: 5px;
+			text-align: center;
+			font-weight: bold;
+			background: rgba(255, 255, 255, 0.9);
+		}
+		
+		.control-buttons {
+			display: flex;
+			gap: 15px;
+		}
+		
+		.btn {
+			padding: 12px 25px;
+			border: none;
+			border-radius: 50px;
+			font-weight: bold;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+		
+		.btn:hover {
+			transform: translateY(-3px);
+			box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+		}
+		
+		.btn:active {
+			transform: translateY(1px);
+		}
+		
+		.btn-start {
+			background: linear-gradient(90deg, #00C853, #64DD17);
+			color: white;
+		}
+		
+		.btn-random {
+			background: linear-gradient(90deg, #2962FF, #2979FF);
+			color: white;
+		}
+		
+		.btn-stop {
+			background: linear-gradient(90deg, #FF3D00, #FF6D00);
+			color: white;
+		}
+		
+		/* 上方句子显示区域 */
+		.sentence-area {
+			height: 100px;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			padding: 20px;
+			background: rgba(0, 0, 0, 0.2);
+			border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+			position: relative;
+		}
+		
+		.sentence-display {
+			font-size: 32px;
+			font-weight: bold;
+			text-align: center;
+			color: #fff;
+			padding: 20px 40px;
+			border-radius: 15px;
+			background: rgba(0, 0, 0, 0.3);
+			box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+			min-height: 100px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			width: 90%;
+			max-width: 900px;
+			line-height: 1.4;
+		}
+		
+		.timer-display {
+			position: absolute;
+			top: 20px;
+			right: 20px;
+			background: linear-gradient(90deg, #FF5722, #FF9800);
+			color: white;
+			padding: 8px 20px;
+			border-radius: 30px;
+			font-weight: bold;
+			font-size: 20px;
+			box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+		
+		.question-info {
+			position: absolute;
+			top: 20px;
+			left: 20px;
+			display: flex;
+			gap: 15px;
+		}
+		
+		.question-counter {
+			background: rgba(255, 255, 255, 0.15);
+			color: white;
+			padding: 8px 20px;
+			border-radius: 30px;
+			font-weight: bold;
+			font-size: 18px;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+		
+		.question-timer {
+			background: rgba(255, 255, 255, 0.15);
+			color: white;
+			padding: 8px 20px;
+			border-radius: 30px;
+			font-weight: bold;
+			font-size: 18px;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+		
+		/* 下方学生区域 - 自适应横向排列 */
+		.students-container {
+			display: flex;
+			min-height: 450px;
+			padding: 20px;
+			gap: 15px;
+			flex-wrap: nowrap;
+			overflow: hidden;
+		}
+		
+		.student-section {
+			flex: 1;
+			min-width: 180px;
+			padding: 15px;
+			border-radius: 15px;
+			display: flex;
+			flex-direction: column;
+			background: rgba(255, 255, 255, 0.1);
+			box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+			transition: all 0.3s ease;
+			border: 1px solid rgba(255, 255, 255, 0.15);
+		}
+		
+		.student-section.active {
+			background: rgba(50, 150, 250, 0.25);
+			transform: translateY(-5px);
+			box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3);
+		}
+		
+		.student-header {
+			text-align: center;
+			margin-bottom: 10px;
+			padding: 10px;
+			border-radius: 10px;
+			background: linear-gradient(90deg, #00BFA5, #1DE9B6);
+			color: white;
+			font-weight: bold;
+			font-size: 18px;
+			box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 8px;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+		
+		.score-display {
+			font-size: 24px;
+			font-weight: bold;
+			color: #FFD700;
+			text-align: center;
+			margin: 10px 0 15px;
+			text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+		}
+		
+		.answer-buttons {
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+			margin-top: auto;
+		}
+		
+		.answer-btn {
+			padding: 12px;
+			font-size: 16px;
+			font-weight: bold;
+			border: none;
+			border-radius: 10px;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 8px;
+			text-align: center;
+		}
+		
+		.correct-btn {
+			background: linear-gradient(90deg, #00C853, #64DD17);
+			color: white;
+		}
+		
+		.incorrect-btn {
+			background: linear-gradient(90deg, #FF3D00, #FF6D00);
+			color: white;
+		}
+		
+		.answer-btn:hover:not(:disabled) {
+			transform: translateY(-3px);
+			box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+		}
+		
+		.answer-btn:disabled {
+			opacity: 0.7;
+			cursor: not-allowed;
+		}
+		
+		/* 选中状态 */
+		.answer-btn.selected {
+			transform: scale(1.05);
+			box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+		}
+		
+		.correct-btn.selected {
+			background: linear-gradient(90deg, #00E676, #69F0AE);
+		}
+		
+		.incorrect-btn.selected {
+			background: linear-gradient(90deg, #FF5252, #FF8A80);
+		}
+		
+		/* 结果弹窗 */
+		.result-modal {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: rgba(0, 0, 0, 0.8);
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			z-index: 1000;
+			opacity: 0;
+			pointer-events: none;
+			transition: opacity 0.5s ease;
+		}
+		
+		.result-modal.active {
+			opacity: 1;
+			pointer-events: all;
+		}
+		
+		.result-content {
+			background: linear-gradient(135deg, #1e3c72, #2a5298);
+			width: 90%;
+			max-width: 800px;
+			border-radius: 20px;
+			padding: 30px;
+			box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+			border: 2px solid #4A90E2;
+			max-height: 80vh;
+			overflow-y: auto;
+		}
+		
+		.result-header {
+			text-align: center;
+			margin-bottom: 25px;
+		}
+		
+		.result-title {
+			font-size: 36px;
+			color: #FFD700;
+			margin-bottom: 10px;
+			text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+		}
+		
+		.result-subtitle {
+			font-size: 22px;
+			color: #4AFC9C;
+			margin-bottom: 20px;
+		}
+		
+		.result-boxes {
+			display: flex;
+			gap: 20px;
+			margin-bottom: 30px;
+		}
+		
+		.result-box {
+			flex: 1;
+			padding: 20px;
+			border-radius: 15px;
+			background: rgba(0, 0, 0, 0.3);
+			box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+		}
+		
+		.box-title {
+			text-align: center;
+			font-size: 24px;
+			font-weight: bold;
+			margin-bottom: 15px;
+			color: #FFD700;
+			padding-bottom: 10px;
+			border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+		}
+		
+		.result-list {
+			list-style-type: none;
+			max-height: 200px;
+			overflow-y: auto;
+			padding: 10px;
+		}
+		
+		.result-list li {
+			padding: 10px 15px;
+			margin: 10px 0;
+			background: rgba(255, 255, 255, 0.1);
+			border-radius: 8px;
+			font-size: 18px;
+			border-left: 4px solid;
+		}
+		
+		.correct-list li {
+			border-left-color: #00E676;
+		}
+		
+		.incorrect-list li {
+			border-left-color: #FF5252;
+		}
+		
+		.final-scores {
+			background: rgba(0, 0, 0, 0.3);
+			border-radius: 15px;
+			padding: 20px;
+			margin-top: 20px;
+		}
+		
+		.score-title {
+			text-align: center;
+			font-size: 24px;
+			margin-bottom: 15px;
+			color: #FFD700;
+		}
+		
+		.score-list {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 15px;
+			justify-content: center;
+		}
+		
+		.score-item {
+			background: rgba(255, 255, 255, 0.1);
+			padding: 12px 20px;
+			border-radius: 10px;
+			font-size: 18px;
+			min-width: 200px;
+			text-align: center;
+			display: flex;
+			justify-content: space-between;
+		}
+		
+		.score-value {
+			color: #FFD700;
+			font-weight: bold;
+		}
+		
+		.modal-buttons {
+			display: flex;
+			justify-content: center;
+			margin-top: 25px;
+		}
+		
+		.btn-close {
+			background: linear-gradient(90deg, #FF3D00, #FF6D00);
+			color: white;
+			padding: 15px 40px;
+			font-size: 20px;
+			border: none;
+			border-radius: 50px;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+		}
+		
+		.btn-close:hover {
+			transform: scale(1.05);
+		}
+		
+		/* 响应式调整 */
+		@media (max-width: 900px) {
+			.top-bar {
+				flex-direction: column;
+				gap: 15px;
+				padding: 15px;
+			}
+			
+			.selected-students {
+				margin: 10px 0;
+				width: 100%;
+				max-width: 100%;
+			}
+			
+			.control-area {
+				width: 100%;
+				justify-content: center;
+			}
+			
+			.sentence-display {
+				font-size: 24px;
+				padding: 15px;
+			}
+			
+			.result-boxes {
+				flex-direction: column;
+			}
+			
+			.student-section {
+				min-width: 180px;
+			}
+		}
+		
+		@media (max-width: 768px) {
+			.students-container {
+				flex-wrap: wrap;
+				justify-content: center;
+			}
+			
+			.student-section {
+				min-width: calc(50% - 20px);
+				max-width: 300px;
+			}
+		}
+		
+		@media (max-width: 600px) {
+			.control-buttons {
+				flex-direction: column;
+				width: 100%;
+			}
+			
+			.btn {
+				width: 100%;
+				justify-content: center;
+			}
+			
+			.question-info {
+				flex-direction: column;
+				gap: 10px;
+				align-items: flex-start;
+			}
+			
+			.sentence-display {
+				font-size: 20px;
+				padding: 10px;
+			}
+			
+			.student-section {
+				min-width: 100%;
+				max-width: 350px;
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<!-- 顶部控制栏 -->
+		<div class="top-bar">
+			<div class="game-title">
+				<i class="fas fa-chalkboard-teacher"></i>
+				课堂互动小游戏
+			</div>
+			
+			<div class="selected-students">
+				<i class="fas fa-user-graduate student-icon"></i>
+				<span id="selectedStudents">等待点名选择学生...</span>
+			</div>
+			
+			<div class="control-area">
+				<div class="player-count">
+					<label for="playerCount"><i class="fas fa-users"></i> 游戏人数</label>
+					<input type="number" id="playerCount" min="1" max="6" value="3">
+				</div>
+				
+				<div class="control-buttons">
+					<button id="startGame" class="btn btn-start">
+						<i class="fas fa-gamepad"></i> 开始游戏
+					</button>
+					<button id="randomPick" class="btn btn-random">
+						<i class="fas fa-random"></i> 开始点名
+					</button>
+				</div>
+			</div>
+		</div>
+		
+		<!-- 句子显示区域 -->
+		<div class="sentence-area">
+			<div class="question-info">
+				<div class="question-counter">
+					<i class="fas fa-question-circle"></i> 题目: <span id="questionNum">0</span>
+				</div>
+				<div class="question-timer">
+					<i class="fas fa-stopwatch"></i> 本题剩余: <span id="questionTimer"></span>秒
+				</div>
+			</div>
+			<div class="sentence-display" id="sentenceDisplay">游戏准备中，请先进行随机点名...</div>
+			<div class="timer-display">
+				<i class="fas fa-clock"></i> <span id="timerDisplay"></span>秒
+			</div>
+		</div>
+		
+		<!-- 学生答题区域 - 自适应横向排列 -->
+		<div class="students-container" id="studentsContainer">
+			<!-- 学生区域将由JS动态生成 -->
+		</div>
+	</div>
+	
+	<!-- 结果弹窗 -->
+	<div class="result-modal" id="resultModal">
+		<div class="result-content">
+			<div class="result-header">
+				<h2 class="result-title">游戏结束！</h2>
+				<div class="result-subtitle">以下是本次游戏的详细结果</div>
+			</div>
+			
+			<div class="result-boxes">
+				<div class="result-box">
+					<div class="box-title">正确描述</div>
+					<ul class="result-list correct-list" id="correctList"></ul>
+				</div>
+				
+				<div class="result-box">
+					<div class="box-title">错误描述</div>
+					<ul class="result-list incorrect-list" id="incorrectList"></ul>
+				</div>
+			</div>
+			
+			<div class="final-scores">
+				<div class="score-title">学生最终得分</div>
+				<div class="score-list" id="finalScores"></div>
+			</div>
+			
+			<div class="modal-buttons">
+				<button class="btn-close" id="closeModal">
+					<i class="fas fa-times"></i> 关闭结果
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		// 数据定义
+		const students = ["李洁","曹春霞","刘安攀","陈名杰","王燕","钟亮","黄小波"];
+		const correctSentences = [
+		'蒸腾作用主要是通过叶片进行的',
+		'叶片由表皮、叶肉和叶脉构成',
+		'气孔一般位于下表皮',
+		'保卫细胞中含有少量的叶绿体',
+		'植物进行光合作用的部位主要是叶肉',
+		'植物移栽时去掉部分叶片是为了减少蒸腾作用',
+		'蒸腾作用能够促进水和无机盐的运输',
+		'植物在光下制造的有机物是淀粉',
+		'酒精脱色后叶片变为黄白色',
+		'酒精脱色时必须使用水浴加热的方法',
+		'用碘液检测淀粉是因为淀粉遇碘变蓝',
+		'植物光合作用吸收了二氧化碳',
+		'氢氧化钠溶液能够吸收二氧化碳',
+		'水是光合作用的原料之一',
+		'种植作物时，应合理密植'
+		];
+		const incorrectSentences = [
+		'叶片的表皮能进行光合作用',
+		'气孔一般位于上表皮',
+		'叶的表皮属于上皮组织',
+		'植物移栽时可以去掉所有叶片',
+		'植物根吸收的水全部被细胞所利用',
+		'保卫细胞不能进行光合作用',
+		'根吸收的水分通过筛管运输',
+		'使用酒精脱色是因为叶绿体溶于酒精',
+		'酒精脱色时可以直接用酒精灯加热烧杯中的酒精',
+		'滴加碘液后，遮光部分变为蓝色',
+		'植物光合作用吸收氧气',
+		'植物光合作用释放二氧化碳',
+		'光合作用将化学能转换为其他能量释放出来',
+		'光合作用的实质是：分解有机物，释放能量',
+		'光合作用制造的有机物是通过导管进行运输的',
+		'为了增产，我们的作物应种的越密越好'
+		];
+		
+		// DOM元素
+		const playerCountInput = document.getElementById('playerCount');
+		const randomPickBtn = document.getElementById('randomPick');
+		const startGameBtn = document.getElementById('startGame');
+		const selectedStudentsEl = document.getElementById('selectedStudents');
+		const sentenceDisplay = document.getElementById('sentenceDisplay');
+		const timerDisplay = document.getElementById('timerDisplay');
+		const questionNumEl = document.getElementById('questionNum');
+		const questionTimerEl = document.getElementById('questionTimer');
+		const studentsContainer = document.getElementById('studentsContainer');
+		const correctList = document.getElementById('correctList');
+		const incorrectList = document.getElementById('incorrectList');
+		const finalScoresEl = document.getElementById('finalScores');
+		const resultModal = document.getElementById('resultModal');
+		const closeModalBtn = document.getElementById('closeModal');
+		
+		// 游戏状态变量
+		let isPicking = false;
+		let isGameRunning = false;
+		let selectedStudents = [];
+		let pickInterval;
+		let gameTimer;
+		let gameDuration = 40; // 默认60秒
+		let timeLeft = gameDuration;
+		let sentenceInterval;
+		let questionTimer;
+		let currentSentence = '';
+		let isCurrentCorrect = false;
+		let usedCorrectSentences = [];
+		let usedIncorrectSentences = [];
+		let studentScores = {};
+		let studentChoices = {};
+		let questionCounter = 0;
+		let questionTimeLeft = 8;
+		
+		// 初始化学生区域
+		function initStudentSections() {
+			studentsContainer.innerHTML = '';
+			studentScores = {};
+			studentChoices = {};
+			
+			selectedStudents.forEach((student, index) => {
+				const section = document.createElement('div');
+				section.className = 'student-section';
+				section.id = `student-${index}`;
+				section.innerHTML = `
+					<div class="student-header">
+						<i class="fas fa-user"></i> ${student}
+					</div>
+					<div class="score-display">0分</div>
+					<div class="answer-buttons">
+						<button class="answer-btn correct-btn" onclick="selectAnswer(${index}, true)">
+							<i class="fas fa-check"></i> 正确
+						</button>
+						<button class="answer-btn incorrect-btn" onclick="selectAnswer(${index}, false)">
+							<i class="fas fa-times"></i> 错误
+						</button>
+					</div>
+				`;
+				studentsContainer.appendChild(section);
+				studentScores[index] = 0;
+				studentChoices[index] = null;
+			});
+		}
+		
+		// 随机点名功能
+		function startRandomPick() {
+			if (isPicking) return;
+			
+			const playerCount = parseInt(playerCountInput.value) || 3;
+			if (playerCount < 1 || playerCount > 6) {
+				alert('游戏人数必须在1-6之间');
+				return;
+			}
+			
+			isPicking = true;
+			randomPickBtn.innerHTML = '<i class="fas fa-stop"></i> 结束点名';
+			randomPickBtn.classList.remove('btn-random');
+			randomPickBtn.classList.add('btn-stop');
+			
+			// 闪烁显示随机学生名字
+			pickInterval = setInterval(() => {
+				const randomIndex = Math.floor(Math.random() * students.length);
+				selectedStudentsEl.textContent = students[randomIndex];
+			}, 100);
+		}
+		
+		function stopRandomPick() {
+			if (!isPicking) return;
+			
+			clearInterval(pickInterval);
+			isPicking = false;
+			randomPickBtn.innerHTML = '<i class="fas fa-random"></i> 开始点名';
+			randomPickBtn.classList.remove('btn-stop');
+			randomPickBtn.classList.add('btn-random');
+			
+			// 随机选择指定数量的学生（不重复）
+			selectedStudents = [];
+			const availableStudents = [...students];
+			const playerCount = parseInt(playerCountInput.value) || 3;
+			
+			for (let i = 0; i < playerCount; i++) {
+				if (availableStudents.length === 0) break;
+				
+				const randomIndex = Math.floor(Math.random() * availableStudents.length);
+				selectedStudents.push(availableStudents[randomIndex]);
+				availableStudents.splice(randomIndex, 1);
+			}
+			
+			selectedStudentsEl.textContent = selectedStudents.join('、');
+			initStudentSections();
+		}
+		
+		// 游戏控制功能
+		function startGame() {
+			if (selectedStudents.length === 0) {
+				alert('请先进行随机点名选择学生！');
+				return;
+			}
+			
+			if (isGameRunning) return;
+			
+			isGameRunning = true;
+			startGameBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 游戏进行中...';
+			startGameBtn.disabled = true;
+			randomPickBtn.disabled = true;
+			playerCountInput.disabled = true;
+			
+			// 重置游戏状态
+			timeLeft = gameDuration;
+			questionCounter = 0;
+			questionTimeLeft = 8;
+			usedCorrectSentences = [];
+			usedIncorrectSentences = [];
+			timerDisplay.textContent = timeLeft;
+			questionNumEl.textContent = questionCounter;
+			questionTimerEl.textContent = questionTimeLeft;
+			
+			// 重置分数
+			selectedStudents.forEach((_, index) => {
+				studentScores[index] = 0;
+				updateScoreDisplay(index);
+			});
+			
+			// 开始计时
+			updateTimerDisplay();
+			gameTimer = setInterval(() => {
+				timeLeft--;
+				updateTimerDisplay();
+				
+				if (timeLeft <= 0) {
+					endGame();
+				}
+			}, 1000);
+			
+			// 显示第一个句子
+			showRandomSentence();
+		}
+		
+		function endGame() {
+			isGameRunning = false;
+			clearInterval(gameTimer);
+			clearInterval(sentenceInterval);
+			clearInterval(questionTimer);
+			startGameBtn.innerHTML = '<i class="fas fa-gamepad"></i> 开始游戏';
+			startGameBtn.disabled = false;
+			randomPickBtn.disabled = false;
+			playerCountInput.disabled = false;
+			sentenceDisplay.textContent = '游戏结束！';
+			
+			// 显示最终结果弹窗
+			showGameResults();
+		}
+		
+		// 显示随机句子
+		function showRandomSentence() {
+			// 处理上一题的答案
+			if (questionCounter > 0) {
+				processAnswers();
+			}
+			
+			// 重置学生选择
+			resetStudentChoices();
+			
+			// 随机决定显示正确还是错误句子
+			const isCorrect = Math.random() > 0.5;
+			let sentence;
+			
+			if (isCorrect) {
+				const randomIndex = Math.floor(Math.random() * correctSentences.length);
+				sentence = correctSentences[randomIndex];
+				usedCorrectSentences.push(sentence);
+			} else {
+				const randomIndex = Math.floor(Math.random() * incorrectSentences.length);
+				sentence = incorrectSentences[randomIndex];
+				usedIncorrectSentences.push(sentence);
+			}
+			
+			currentSentence = sentence;
+			isCurrentCorrect = isCorrect;
+			sentenceDisplay.textContent = sentence;
+			
+			// 更新问题计数器
+			questionCounter++;
+			questionNumEl.textContent = questionCounter;
+			
+			// 重置本题计时器
+			questionTimeLeft = 6;
+			questionTimerEl.textContent = questionTimeLeft;
+			
+			// 启动本题倒计时
+			clearInterval(questionTimer);
+			questionTimer = setInterval(() => {
+				questionTimeLeft--;
+				questionTimerEl.textContent = questionTimeLeft;
+				
+				if (questionTimeLeft <= 0) {
+					clearInterval(questionTimer);
+					showRandomSentence();
+				}
+			}, 1000);
+			
+			// 激活学生区域
+			selectedStudents.forEach((_, index) => {
+				const section = document.getElementById(`student-${index}`);
+				section.classList.add('active');
+			});
+		}
+		
+		// 处理学生答案
+		function selectAnswer(studentIndex, answer) {
+			if (!isGameRunning) return;
+			
+			// 记录学生选择
+			studentChoices[studentIndex] = answer;
+			
+			// 更新选中样式
+			const section = document.getElementById(`student-${studentIndex}`);
+			const buttons = section.querySelectorAll('.answer-btn');
+			
+			// 移除所有选中状态
+			buttons.forEach(btn => {
+				btn.classList.remove('selected');
+			});
+			
+			// 添加当前选中状态
+			if (answer) {
+				buttons[0].classList.add('selected');
+			} else {
+				buttons[1].classList.add('selected');
+			}
+		}
+		
+		// 处理上一题的答案
+		function processAnswers() {
+			selectedStudents.forEach((_, index) => {
+				const choice = studentChoices[index];
+				const section = document.getElementById(`student-${index}`);
+				
+				if (choice === null) {
+					// 未选择，扣一分
+					studentScores[index]--;
+				} else {
+					// 判断答案是否正确
+					if (choice === isCurrentCorrect) {
+						studentScores[index]++;
+					} else {
+						studentScores[index]--;
+					}
+				}
+				
+				updateScoreDisplay(index);
+			});
+		}
+		
+		// 重置学生选择
+		function resetStudentChoices() {
+			selectedStudents.forEach((_, index) => {
+				studentChoices[index] = null;
+				const section = document.getElementById(`student-${index}`);
+				section.classList.remove('active');
+				
+				// 重置按钮样式
+				const buttons = section.querySelectorAll('.answer-btn');
+				buttons.forEach(btn => {
+					btn.classList.remove('selected');
+					btn.disabled = false;
+				});
+			});
+		}
+		
+		// 更新分数显示
+		function updateScoreDisplay(studentIndex) {
+			const scoreEl = document.querySelector(`#student-${studentIndex} .score-display`);
+			scoreEl.textContent = `${studentScores[studentIndex]}分`;
+			scoreEl.style.color = studentScores[studentIndex] >= 0 ? '#64DD17' : '#FF3D00';
+		}
+		
+		// 更新计时器显示
+		function updateTimerDisplay() {
+			timerDisplay.textContent = timeLeft;
+			timerDisplay.style.background = timeLeft <= 10 ? 'linear-gradient(90deg, #FF3D00, #FF6D00)' : 'linear-gradient(90deg, #2962FF, #2979FF)';
+		}
+		
+		// 显示游戏结果
+		function showGameResults() {
+			// 显示正确描述
+			correctList.innerHTML = '';
+			usedCorrectSentences.forEach(sentence => {
+				const li = document.createElement('li');
+				li.textContent = sentence;
+				correctList.appendChild(li);
+			});
+			
+			// 显示错误描述
+			incorrectList.innerHTML = '';
+			usedIncorrectSentences.forEach(sentence => {
+				const li = document.createElement('li');
+				li.textContent = sentence;
+				incorrectList.appendChild(li);
+			});
+			
+			// 显示最终得分
+			finalScoresEl.innerHTML = '';
+			selectedStudents.forEach((student, index) => {
+				const scoreItem = document.createElement('div');
+				scoreItem.className = 'score-item';
+				scoreItem.innerHTML = `
+					<span>${student}</span>
+					<span class="score-value">${studentScores[index]}分</span>
+				`;
+				finalScoresEl.appendChild(scoreItem);
+			});
+			
+			// 显示结果弹窗
+			resultModal.classList.add('active');
+		}
+		
+		// 事件监听
+		randomPickBtn.addEventListener('click', () => {
+			if (isPicking) {
+				stopRandomPick();
+			} else {
+				startRandomPick();
+			}
+		});
+		
+		startGameBtn.addEventListener('click', startGame);
+		
+		closeModalBtn.addEventListener('click', () => {
+			resultModal.classList.remove('active');
+		});
+		
+		// 页面加载时初始化
+		window.onload = function() {
+			// 默认选择3名学生
+			selectedStudents = students.slice(0, 3);
+			selectedStudentsEl.textContent = selectedStudents.join('、');
+			initStudentSections();
+		};
+		
+		// 暴露函数给全局作用域
+		window.selectAnswer = selectAnswer;
+	</script>
+</body>
+</html>
