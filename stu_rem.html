@@ -420,34 +420,51 @@
             // 方法2: 直接尝试加载已知的图片（适用于图片命名有规律的情况）
             // 这里使用模拟数据，实际使用时需要替换为真实的图片路径
             const mockImages = {
-                "1班": [
-                    "1/student1.jpg",
-                    "1/student2.jpg",
-                    "1/student3.jpg",
-                    "1/student4.jpg",
-                    "1/student5.jpg"
-                ],
+                "1班": ['1/student1.jpg', '1/student2.jpg', '1/student3.jpg', '1/student4.jpg', '1/student5.jpg',
+						'1/student6.jpg', '1/student7.jpg', '1/student8.jpg', '1/student9.jpg', '1/student10.jpg',
+						'1/student11.jpg', '1/student12.jpg', '1/student13.jpg', '1/student14.jpg', '1/student15.jpg',
+						'1/student16.jpg', '1/student17.jpg', '1/student18.jpg', '1/student19.jpg', '1/student20.jpg',
+						'1/student21.jpg', '1/student22.jpg', '1/student23.jpg', '1/student24.jpg', '1/student25.jpg',
+						'1/student26.jpg', '1/student27.jpg', '1/student28.jpg', '1/student29.jpg', '1/student30.jpg',
+						'1/student31.jpg', '1/student32.jpg', '1/student33.jpg', '1/student34.jpg', '1/student35.jpg',
+						'1/student36.jpg', '1/student37.jpg', '1/student38.jpg', '1/student39.jpg', '1/student40.jpg',
+						'1/student41.jpg', '1/student42.jpg', '1/student43.jpg', '1/student44.jpg', '1/student45.jpg',
+				],
                 "2班": [
-                    "2班/student1.jpg",
-                    "2班/student2.jpg",
-                    "2班/student3.jpg",
-                    "2班/student4.jpg",
-                    "2班/student5.jpg"
+                    '2/student1.jpg', '2/student2.jpg', '2/student3.jpg', '2/student4.jpg', '2/student5.jpg',
+					'2/student6.jpg', '2/student7.jpg', '2/student8.jpg', '2/student9.jpg', '2/student10.jpg',
+					'2/student11.jpg', '2/student12.jpg', '2/student13.jpg', '2/student14.jpg', '2/student15.jpg',
+					'2/student16.jpg', '2/student17.jpg', '2/student18.jpg', '2/student19.jpg', '2/student20.jpg', 
+					'2/student21.jpg', '2/student22.jpg', '2/student23.jpg', '2/student24.jpg', '2/student25.jpg', 
+					'2/student26.jpg', '2/student27.jpg', '2/student28.jpg', '2/student29.jpg', '2/student30.jpg', 
+					'2/student31.jpg', '2/student32.jpg', '2/student33.jpg', '2/student34.jpg', '2/student35.jpg', 
+					'2/student36.jpg', '2/student37.jpg', '2/student38.jpg', '2/student39.jpg', '2/student40.jpg',
+					'2/student41.jpg', '2/student42.jpg', '2/student43.jpg', '2/student44.jpg', '2/student45.jpg',
+					'2/student46.jpg'
                 ],
-                "6班": [
-                    "6班/student1.jpg",
-                    "6班/student2.jpg",
-                    "6班/student3.jpg",
-                    "6班/student4.jpg",
-                    "6班/student5.jpg"
+                "6班": ['6/student1.jpg', '6/student2.jpg', '6/student3.jpg', '6/student4.jpg', '6/student5.jpg',
+				'6/student6.jpg', '6/student7.jpg', '6/student8.jpg', '6/student9.jpg', '6/student10.jpg',
+				'6/student11.jpg', '6/student12.jpg', '6/student13.jpg', '6/student14.jpg', '6/student15.jpg', 
+				'6/student16.jpg', '6/student17.jpg', '6/student18.jpg', '6/student19.jpg', '6/student20.jpg', 
+				'6/student21.jpg', '6/student22.jpg', '6/student23.jpg', '6/student24.jpg', '6/student25.jpg',
+				'6/student26.jpg', '6/student27.jpg', '6/student28.jpg', '6/student29.jpg', '6/student30.jpg',
+				'6/student31.jpg', '6/student32.jpg', '6/student33.jpg', '6/student34.jpg', '6/student35.jpg',
+				'6/student36.jpg', '6/student37.jpg', '6/student38.jpg', '6/student39.jpg', '6/student40.jpg'
                 ],
                 "11班": [
-                    "11班/student1.jpg",
-                    "11班/student2.jpg",
-                    "11班/student3.jpg",
-                    "11班/student4.jpg",
-                    "11班/student5.jpg"
+                    '11/student1.jpg', '11/student2.jpg', '11/student3.jpg', '11/student4.jpg', '11/student5.jpg',
+					'11/student6.jpg', '11/student7.jpg', '11/student8.jpg', '11/student9.jpg', '11/student10.jpg',
+					'11/student11.jpg', '11/student12.jpg', '11/student13.jpg', '11/student14.jpg', '11/student15.jpg',
+					'11/student16.jpg', '11/student17.jpg', '11/student18.jpg', '11/student19.jpg', '11/student20.jpg',
+					'11/student21.jpg', '11/student22.jpg', '11/student23.jpg', '11/student24.jpg', '11/student25.jpg',
+					'11/student26.jpg', '11/student27.jpg', '11/student28.jpg', '11/student29.jpg', '11/student30.jpg',
+					'11/student31.jpg', '11/student32.jpg', '11/student33.jpg', '11/student34.jpg', '11/student35.jpg',
+					'11/student36.jpg', '11/student37.jpg', '11/student38.jpg', '11/student39.jpg', '11/student40.jpg', 
+					'11/student41.jpg', '11/student42.jpg', '11/student43.jpg', '11/student44.jpg', '11/student45.jpg', 
+					'11/student46.jpg', '11/student47.jpg', '11/student48.jpg', '11/student49.jpg', '11/student50.jpg',
+					'11/student51.jpg', '11/student52.jpg', '11/student53.jpg'
                 ]
+				
             };
             
             // 返回模拟数据
