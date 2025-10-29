@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>逐梦7班 快乐点名</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: 'Comic Sans MS', cursive;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #ffb6c1 0%, #87cefa 100%);
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 4em;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin: 30px 0;
+        }
+
+        #nameDisplay {
+            font-size: 4em;
+            margin: 50px 0;
+            min-height: 120px;
+            transition: all 0.3s;
+            color: #2c3e50;
+        }
+
+        #nameDisplay.active {
+            font-weight: bold;
+            font-size: 5em;
+            color: #e74c3c;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+
+        #controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+
+        button {
+            padding: 15px 40px;
+            font-size: 1.5em;
+            cursor: pointer;
+            background-color: #f39c12;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        button:hover {
+            background-color: #e67e22;
+            transform: scale(1.05);
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.2em;
+            color: #34495e;
+        }
+
+        #speedRange {
+            width: 250px;
+            height: 10px;
+            background: #ecf0f1;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>❤ 超越7班 ❤</h1>
+    <div id="nameDisplay">准备好咯~</div>
+    <div id="controls">
+        <button id="startBtn">开始点名</button>
+        <div class="speed-control">
+            <span>速度调节：🐢 ←→ 🐇</span>
+            <input type="range" id="speedRange" min="50" max="300" value="150">
+        </div>
+    </div>
+
+    <script>
+        const students = [
+            "杨静铭","彭一峰","何梓洁","李连虹","段苏豪","宁敏聪",
+            "孙鸿睿","祝铭熙","彭煜欣","成羽桐","张梓萱","段苏恒",
+            "邬侯君林","唐铭蔚","李星毅","杨嘉钰","税淳锋","韩锦桐",
+            "季梓苒","郑茗杰","邓岳鑫","樊志豪","龚书宁","周弋冉",
+            "史漫汐","陈煜锟","胡戈","黄楒棋","林若玉","龚妡雅",
+            "陈泉霖","蒋浩宇","虞中宜","罗艾辰轩","陈鑫洁","胡哲皓",
+            "杨秋婷","樊鸿举","高义婷","熊焰","周钰琳","赵安娜",
+            "丁诗涵","杨灿","张文博","刘乙锦","欧阳静秋","沈煜皓",
+            "安荣轩","张舒涵","邹昊益","雷丽新","卢思贝"
+        ];
+
+        const nameDisplay = document.getElementById("nameDisplay");
+        const startBtn = document.getElementById("startBtn");
+        const speedRange = document.getElementById("speedRange");
+
+        let isRunning = false;
+        let intervalId = null;
+        let currentSpeed = speedRange.value;
+
+        function selectRandomStudent() {
+            const randomIndex = Math.floor(Math.random() * students.length);
+            nameDisplay.textContent = students[randomIndex];
+        }
+
+        function startRolling() {
+            nameDisplay.classList.remove("active");
+            intervalId = setInterval(selectRandomStudent, currentSpeed);
+        }
+
+        startBtn.addEventListener("click", () => {
+            if (!isRunning) {
+                startRolling();
+                startBtn.textContent = "就你了";
+            } else {
+                clearInterval(intervalId);
+                nameDisplay.classList.add("active");
+                startBtn.textContent = "开始点名";
+            }
+            isRunning = !isRunning;
+        });
+        // 修改速度控制部分为：
+        speedRange.addEventListener("input", (e) => {
+            // 将数值反转（向右越快）
+            currentSpeed = 350 - e.target.value; // 50-300 -> 300-50
+            if (isRunning) {
+                clearInterval(intervalId);
+                startRolling();
+            }
+        });
+
+        // 初始化显示文字
+        nameDisplay.textContent = "准备好咯~";
+    </script>
+</body>
+</html>
