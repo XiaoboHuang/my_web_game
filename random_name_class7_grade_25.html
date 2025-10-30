@@ -74,10 +74,39 @@
             background: #ecf0f1;
             border-radius: 5px;
         }
+
+        /* 新增班级选择器样式 */
+        .class-selector {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.2em;
+            color: #34495e;
+            margin-bottom: 20px;
+        }
+
+        #classSelect {
+            padding: 8px 15px;
+            font-size: 1em;
+            border-radius: 15px;
+            border: 2px solid #f39c12;
+            background-color: white;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <h1>❤ 超越7班 ❤</h1>
+    
+    <!-- 新增班级选择器 -->
+    <div class="class-selector">
+        <span>选择班级：</span>
+        <select id="classSelect">
+            <option value="7">超越7班</option>
+            <option value="11">11班</option>
+        </select>
+    </div>
+    
     <div id="nameDisplay">准备好咯~</div>
     <div id="controls">
         <button id="startBtn">开始点名</button>
@@ -88,25 +117,61 @@
     </div>
 
     <script>
-        const students = [
-            "杨静铭","彭一峰","何梓洁","李连虹","段苏豪","宁敏聪",
-            "孙鸿睿","祝铭熙","彭煜欣","成羽桐","张梓萱","段苏恒",
-            "邬侯君林","唐铭蔚","李星毅","杨嘉钰","税淳锋","韩锦桐",
-            "季梓苒","郑茗杰","邓岳鑫","樊志豪","龚书宁","周弋冉",
-            "史漫汐","陈煜锟","胡戈","黄楒棋","林若玉","龚妡雅",
-            "陈泉霖","蒋浩宇","虞中宜","罗艾辰轩","陈鑫洁","胡哲皓",
-            "杨秋婷","樊鸿举","高义婷","熊焰","周钰琳","赵安娜",
-            "丁诗涵","杨灿","张文博","刘乙锦","欧阳静秋","沈煜皓",
-            "安荣轩","张舒涵","邹昊益","雷丽新","卢思贝"
-        ];
+        // 定义所有班级的学生名单
+        const allStudents = {
+            "7": [
+                "杨静铭","彭一峰","何梓洁","李连虹","段苏豪","宁敏聪",
+                "孙鸿睿","祝铭熙","彭煜欣","成羽桐","张梓萱","段苏恒",
+                "邬侯君林","唐铭蔚","李星毅","杨嘉钰","税淳锋","韩锦桐",
+                "季梓苒","郑茗杰","邓岳鑫","樊志豪","龚书宁","周弋冉",
+                "史漫汐","陈煜锟","胡戈","黄楒棋","林若玉","龚妡雅",
+                "陈泉霖","蒋浩宇","虞中宜","罗艾辰轩","陈鑫洁","胡哲皓",
+                "杨秋婷","樊鸿举","高义婷","熊焰","周钰琳","赵安娜",
+                "丁诗涵","杨灿","张文博","刘乙锦","欧阳静秋","沈煜皓",
+                "安荣轩","张舒涵","邹昊益","雷丽新","卢思贝"
+            ],
+            "11": [
+                "曹曾逸","曹俊逸","曾熙雯","陈泓弢","陈诗蕊","陈衍辛",
+                "陈胤鸿","陈昱含","陈昱潼","杜昊岳","龚梓涵","蒋梓萱",
+                "金献康","雷莘雅","黎舒馨","李侯雨熙","李明远","李铭玥",
+                "李芊钡","李秋月","练镁铃","林鸿旭","林彦彤","林钰瑶",
+                "刘可芯","刘洛翎","刘睿","罗研童","毛钰灵","齐思睿",
+                "唐嘉佚","唐先佑","唐先佐","王灏","伍蔚然","萧鸿继",
+                "徐正霖","颜思龙","杨翊琳","杨语洋","杨梓凌","殷夕媛",
+                "尤语畅","禹棋曦","张槿萱","张梦欣","张瑶韵","张艺凡",
+                "赵梓悦","周炎","周羿岑","邹谨月","邹昀邑"
+            ]
+        };
 
         const nameDisplay = document.getElementById("nameDisplay");
         const startBtn = document.getElementById("startBtn");
         const speedRange = document.getElementById("speedRange");
+        const classSelect = document.getElementById("classSelect");
+        const title = document.querySelector("h1");
 
         let isRunning = false;
         let intervalId = null;
         let currentSpeed = speedRange.value;
+        let currentClass = "7"; // 默认班级
+        let students = allStudents[currentClass]; // 当前使用的学生名单
+
+        // 更新班级信息
+        function updateClass() {
+            currentClass = classSelect.value;
+            students = allStudents[currentClass];
+            title.textContent = `❤ ${currentClass === "7" ? "超越7班" : "11班"} ❤`;
+            
+            // 如果正在运行，先停止
+            if (isRunning) {
+                clearInterval(intervalId);
+                isRunning = false;
+                startBtn.textContent = "开始点名";
+            }
+            
+            // 重置显示
+            nameDisplay.textContent = "准备好咯~";
+            nameDisplay.classList.remove("active");
+        }
 
         function selectRandomStudent() {
             const randomIndex = Math.floor(Math.random() * students.length);
@@ -129,15 +194,18 @@
             }
             isRunning = !isRunning;
         });
-        // 修改速度控制部分为：
+
+        // 速度控制
         speedRange.addEventListener("input", (e) => {
-            // 将数值反转（向右越快）
             currentSpeed = 350 - e.target.value; // 50-300 -> 300-50
             if (isRunning) {
                 clearInterval(intervalId);
                 startRolling();
             }
         });
+
+        // 班级切换事件
+        classSelect.addEventListener("change", updateClass);
 
         // 初始化显示文字
         nameDisplay.textContent = "准备好咯~";
